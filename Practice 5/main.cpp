@@ -1,9 +1,27 @@
 #include <iostream>
 #include <fstream>
-#include <boost/multiprecision/cpp_dec_float.hpp>
+#include <vector>
 
 using namespace std;
-using namespace boost::multiprecision;
+vector<int> findPrimes(int N) {
+    vector<bool> isPrime(N + 1, true);
+    vector<int> primes;
+
+    for (int p = 2; p * p <= N; ++p) {
+        if (isPrime[p]) {
+            for (int i = p * p; i <= N; i += p) {
+                isPrime[i] = false;
+            }
+        }
+    }
+    for (int p = 2; p <= N; ++p) {
+        if (isPrime[p]) {
+            primes.push_back(p);
+        }
+    }
+
+    return primes;
+}
 
 int main() {
     const char* inputFilePath = "input.txt";
@@ -15,25 +33,23 @@ int main() {
 
     int N;
     inputFile >> N;
-
-    cpp_dec_float_100 pi = boost::math::constants::pi<cpp_dec_float_100>();
-    cout.precision(N + 1);
-    cout << fixed << pi << endl;
-
+    vector<int> primes = findPrimes(N);
     const char* outputFilePath = "output.txt";
-
     ofstream outputFile(outputFilePath);
     if (!outputFile) {
         cerr << "Не удалось открыть выходной файл." << endl;
         return 1;
     }
 
-    outputFile.precision(N + 1);
-    outputFile << fixed << pi << endl;
-
+    for (size_t i = 0; i < primes.size(); ++i) {
+        outputFile << primes[i];
+        if (i < primes.size() - 1) {
+            outputFile << ", ";
+        }
+    }
     inputFile.close();
     outputFile.close();
 
-    cout << "Число π с " << N << " десятичными разрядами сохранено в " << outputFilePath << endl;
+    cout << "Простые числа до " << N << " сохранены в " << outputFilePath << endl;
     return 0;
 }
